@@ -1,0 +1,28 @@
+################
+# Language Settings
+#
+# Sets the default language file
+################
+lang: en
+
+################
+# Auto Removal
+################
+
+# Set to false to disable auto-removal
+autoRemove: true
+
+# Time in days until auto removal
+arDays: 7
+
+################
+# First Login
+################
+
+# Set to false to disable first login requirement
+fEnabled: true
+
+# Time in days for a user to login once they've been added
+# and if a user fails to login, they're removed from the
+# whitelist.
+fDays: 7
