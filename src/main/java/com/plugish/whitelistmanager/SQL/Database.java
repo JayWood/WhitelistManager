@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import com.plugish.whitelistmanager.WhitelistManager;
@@ -31,109 +32,148 @@ public abstract class Database {
 	public void initialize() {
 		connection = getSQLConnection();
 		try {
-			PreparedStatement ps = connection.prepareStatement( "SELECT * FROM " + table + " WHERE player = ?" );
+			PreparedStatement ps = connection.prepareStatement( "SELECT * FROM " + table + " WHERE id = ?" );
 			ResultSet rs = ps.executeQuery();
 			close( ps, rs );
-
 		} catch ( SQLException ex ) {
-			plugin.getLogger().log( Level.SEVERE, "Unable to retreive connection", ex );
+			plugin.getLogger().log( Level.SEVERE, "Unable to retrieve connection", ex );
 		}
 	}
 
-	// These are the methods you can use to get things out of your database. You of course can make new ones to return different things in the database.
-	// This returns the number of people the player killed.
-	public Integer getTokens( String string ) {
+	public String lastLogin( Player player ) {
+
 		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String uuid = player.getUniqueId().toString();
+
 		try {
 			conn = getSQLConnection();
-			ps = conn.prepareStatement( "SELECT * FROM " + table + " WHERE player = '" + string + "';" );
+			preparedStatement = conn.prepareStatement( "SELECT * FROM " + table + " WHERE id = '" + uuid + "';" );
+			resultSet = preparedStatement.executeQuery();
 
-			rs = ps.executeQuery();
-			while ( rs.next() ) {
-				if ( rs.getString( "player" ).equalsIgnoreCase( string.toLowerCase() ) ) { // Tell database to search for the player you sent into the method. e.g getTokens(sam) It will look for sam.
-					return rs.getInt( "kills" ); // Return the players ammount of kills. If you wanted to get total (just a random number for an example for you guys) You would change this to total!
+			while ( resultSet.next() ) {
+				if ( resultSet.getString( "id" ).equalsIgnoreCase( uuid.toLowerCase() ) ) {
+					return resultSet.getString( "last_online" );
 				}
 			}
+
 		} catch ( SQLException ex ) {
 			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
 		} finally {
 			try {
-				if ( ps != null )
-					ps.close();
-				if ( conn != null )
-					conn.close();
-			} catch ( SQLException ex ) {
-				plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionClose(), ex );
-			}
-		}
-		return 0;
-	}
-
-	// Exact same method here, Except as mentioned above i am looking for total!
-	public Integer getTotal( String string ) {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			conn = getSQLConnection();
-			ps = conn.prepareStatement( "SELECT * FROM " + table + " WHERE player = '" + string + "';" );
-
-			rs = ps.executeQuery();
-			while ( rs.next() ) {
-				if ( rs.getString( "player" ).equalsIgnoreCase( string.toLowerCase() ) ) {
-					return rs.getInt( "total" );
+				if ( preparedStatement != null ) {
+					preparedStatement.close();
 				}
-			}
-		} catch ( SQLException ex ) {
-			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
-		} finally {
-			try {
-				if ( ps != null )
-					ps.close();
-				if ( conn != null )
+
+				if ( conn != null ) {
 					conn.close();
+				}
 			} catch ( SQLException ex ) {
 				plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionClose(), ex );
 			}
 		}
-		return 0;
+
+		return "";
 	}
 
-	// Now we need methods to save things to the database
-	public void setTokens( Player player, Integer tokens, Integer total ) {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		try {
-			conn = getSQLConnection();
-			ps = conn.prepareStatement( "REPLACE INTO " + table + " (player,kills,total) VALUES(?,?,?)" ); // IMPORTANT. In SQLite class, We made 3 colums. player, Kills, Total.
-			ps.setString( 1, player.getName().toLowerCase() );                                             // YOU MUST put these into this line!! And depending on how many
-			// colums you put (say you made 5) All 5 need to be in the brackets
-			// Seperated with comma's (,) AND there needs to be the same amount of
-			// question marks in the VALUES brackets. Right now i only have 3 colums
-			// So VALUES (?,?,?) If you had 5 colums VALUES(?,?,?,?,?)
+	/**
+	 * Checks the database against the player.
+	 *
+	 * @param player Instance of Player
+	 * @return true on success, false otherwise
+	 */
+	public boolean playerExists( Player player ) {
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		String uuid = player.getUniqueId().toString();
+		String query = "SELECT * FROM " + table + " WHERE id = '" + uuid + "'";
+		boolean found = false;
 
-			ps.setInt( 2, tokens ); // This sets the value in the database. The colums go in order. Player is ID 1, kills is ID 2, Total would be 3 and so on. you can use
-			// setInt, setString and so on. tokens and total are just variables sent in, You can manually send values in as well. p.setInt(2, 10) <-
-			// This would set the players kills instantly to 10. Sorry about the variable names, It sets their kills to 10 i just have the variable called
-			// Tokens from another plugin :/
-			ps.setInt( 3, total );
-			ps.executeUpdate();
-			return;
+		try {
+			connection = getSQLConnection();
+			preparedStatement = connection.prepareStatement( query );
+
+			// Returns true if there is a result, false otherwise.
+			found = preparedStatement.execute();
 		} catch ( SQLException ex ) {
 			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
 		} finally {
 			try {
-				if ( ps != null )
-					ps.close();
-				if ( conn != null )
-					conn.close();
+				if ( preparedStatement != null )
+					preparedStatement.close();
+				if ( connection != null )
+					connection.close();
 			} catch ( SQLException ex ) {
 				plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionClose(), ex );
 			}
 		}
-		return;
+
+		return found;
+	}
+
+	/**
+	 * Attempts to insert a new player into the database
+	 * @param player
+	 */
+	public void insertPlayer( Player player ) {
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		String uuid = player.getUniqueId().toString();
+
+		try {
+			connection = getSQLConnection();
+			preparedStatement = connection.prepareStatement( "REPLACE INTO " + table + "(id,player,added,last_online) VALUES(?,?,date('now'),date('now'))" );
+			preparedStatement.setString( 1, uuid );
+			preparedStatement.setString( 2, player.getName() );
+
+			int rows = preparedStatement.executeUpdate();
+			if ( rows < 1 ) {
+				plugin.getLogger().warning( "Failed inserting player " + player.getName() + " in the database." );
+			}
+		} catch ( SQLException ex ) {
+			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
+		} finally {
+			try {
+				if ( preparedStatement != null )
+					preparedStatement.close();
+				if ( connection != null )
+					connection.close();
+			} catch ( SQLException ex ) {
+				plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionClose(), ex );
+			}
+		}
+	}
+
+	/**
+	 * Updates the database row for the current player to the current date
+	 *
+	 * @param player Instance of Player
+	 */
+	public void updatePlayer( Player player ) {
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		String uuid = player.getUniqueId().toString();
+
+		try {
+			connection = getSQLConnection();
+			preparedStatement = connection.prepareStatement( "UPDATE " + table + " SET `last_login` = date('now') WHERE id = '" + uuid + "'" );
+			int rows = preparedStatement.executeUpdate();
+			if ( rows < 1 ) {
+				plugin.getLogger().warning( "Failed updating player " + player.getName() + " in the database." );
+			}
+		} catch ( SQLException ex ) {
+			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
+		} finally {
+			try {
+				if ( preparedStatement != null )
+					preparedStatement.close();
+				if ( connection != null )
+					connection.close();
+			} catch ( SQLException ex ) {
+				plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionClose(), ex );
+			}
+		}
 	}
 
 
