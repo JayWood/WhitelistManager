@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import com.plugish.whitelistmanager.WhitelistManager;
@@ -17,8 +16,8 @@ import org.bukkit.entity.Player;
 public abstract class Database {
 	WhitelistManager plugin;
 	Connection connection;
-	// The name of the table we created back in SQLite class.
-	public String table = "table_name";
+
+	public String table = "players";
 	public int tokens = 0;
 
 	public Database( WhitelistManager instance ) {
@@ -80,7 +79,7 @@ public abstract class Database {
 	/**
 	 * Checks the database against the player.
 	 *
-	 * @param player Instance of Player
+	 * @param player Instance of org.bukkit.entity.Player
 	 * @return true on success, false otherwise
 	 */
 	public boolean playerExists( Player player ) {
@@ -114,7 +113,8 @@ public abstract class Database {
 
 	/**
 	 * Attempts to insert a new player into the database
-	 * @param player
+	 *
+	 * @param player Instance of org.bukkit.entity.Player
 	 */
 	public void insertPlayer( Player player ) {
 		Connection connection = null;
@@ -148,7 +148,7 @@ public abstract class Database {
 	/**
 	 * Updates the database row for the current player to the current date
 	 *
-	 * @param player Instance of Player
+	 * @param player Instance of org.bukkit.entity.Player
 	 */
 	public void updatePlayer( Player player ) {
 		Connection connection = null;
