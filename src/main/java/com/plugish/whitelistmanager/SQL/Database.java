@@ -18,7 +18,6 @@ public abstract class Database {
 	Connection connection;
 
 	public String table = "players";
-	public int tokens = 0;
 
 	public Database( WhitelistManager instance ) {
 		plugin = instance;
