@@ -23,12 +23,18 @@ public class loginListener implements Listener {
 	@EventHandler
 	public void normalLogin( PlayerLoginEvent event ) {
 		Player player = event.getPlayer();
-		plugin.getLogger().info( player.getName() + " has logged in." );
 
 		SQLite sqlite = new SQLite( plugin );
-		if( ! sqlite.playerExists( player ) ) {
+		sqlite.load();
+
+		boolean exists = sqlite.playerExists( player );
+		plugin.getLogger().info( player.getName() + " has logged in, checking database." );
+
+		if( ! exists ) {
+			plugin.getLogger().info( "Player does not exist, inserting player data." );
 			sqlite.insertPlayer( player );
 		} else {
+			plugin.getLogger().info( "Player Exists, attempting to update his data." );
 			sqlite.updatePlayer( player );
 		}
 	}

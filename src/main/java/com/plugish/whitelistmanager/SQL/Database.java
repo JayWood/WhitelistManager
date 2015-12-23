@@ -85,15 +85,17 @@ public abstract class Database {
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		String uuid = player.getUniqueId().toString();
-		String query = "SELECT * FROM " + table + " WHERE id = '" + uuid + "'";
 		boolean found = false;
 
 		try {
 			connection = getSQLConnection();
-			preparedStatement = connection.prepareStatement( query );
+			preparedStatement = connection.prepareStatement( "SELECT * FROM " + table + " WHERE id = '" + uuid + "'" );
 
 			// Returns true if there is a result, false otherwise.
-			found = preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			found = resultSet.isBeforeFirst();
+
 		} catch ( SQLException ex ) {
 			plugin.getLogger().log( Level.SEVERE, Errors.sqlConnectionExecute(), ex );
 		} finally {
@@ -122,7 +124,7 @@ public abstract class Database {
 
 		try {
 			connection = getSQLConnection();
-			preparedStatement = connection.prepareStatement( "REPLACE INTO " + table + "(id,player,added,last_online) VALUES(?,?,date('now'),date('now'))" );
+			preparedStatement = connection.prepareStatement( "INSERT INTO " + table + "(id,player,added,last_online) VALUES(?,?,date('now'),date('now'))" );
 			preparedStatement.setString( 1, uuid );
 			preparedStatement.setString( 2, player.getName() );
 
@@ -156,7 +158,7 @@ public abstract class Database {
 
 		try {
 			connection = getSQLConnection();
-			preparedStatement = connection.prepareStatement( "UPDATE " + table + " SET `last_login` = date('now') WHERE id = '" + uuid + "'" );
+			preparedStatement = connection.prepareStatement( "UPDATE " + table + " SET `last_online` = date('now') WHERE id = '" + uuid + "'" );
 			int rows = preparedStatement.executeUpdate();
 			if ( rows < 1 ) {
 				plugin.getLogger().warning( "Failed updating player " + player.getName() + " in the database." );
@@ -176,12 +178,12 @@ public abstract class Database {
 	}
 
 
-	public void close( PreparedStatement ps, ResultSet rs ) {
+	public void close( PreparedStatement preparedStatement, ResultSet resultSet ) {
 		try {
-			if ( ps != null )
-				ps.close();
-			if ( rs != null )
-				rs.close();
+			if ( preparedStatement != null )
+				preparedStatement.close();
+			if ( resultSet != null )
+				resultSet.close();
 		} catch ( SQLException ex ) {
 			Error.close( plugin, ex );
 		}
