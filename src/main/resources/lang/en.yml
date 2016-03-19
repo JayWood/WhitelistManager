@@ -1,0 +1,4 @@
+
+# Log file messages, nothing more.
+log:
+  fail_dos: "Cannot open Data Output Stream!"
