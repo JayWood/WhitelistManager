@@ -1,6 +1,8 @@
 package com.plugish.whitelistmanager.Connection;
 
 import com.plugish.whitelistmanager.WhitelistManager;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -17,7 +19,6 @@ public class Connection {
 	 *
 	 * @param plugin   Instance of WhitelistManager
 	 * @param url_path The URL to the web site.
-	 * @param key      The Key needed to access the website.
 	 */
 	public Connection( WhitelistManager plugin, String url_path ) {
 
