@@ -1,6 +1,5 @@
 package com.plugish.whitelistmanager.Tasks;
 
-import com.plugish.whitelistmanager.Connection.Connection;
 import com.plugish.whitelistmanager.WhitelistManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
