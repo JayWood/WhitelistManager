@@ -141,6 +141,10 @@ public class WhitelistManager extends JavaPlugin {
 			// Get the player's name
 			String playerName = serverPlayer.getName();
 
+			if ( isPlayerInIgnoredList( playerName ) ) {
+				continue;
+			}
+
 			// Default whitelist to false
 			boolean shouldBeWhiteListed = false;
 
@@ -157,7 +161,7 @@ public class WhitelistManager extends JavaPlugin {
 			}
 
 			// Check the ignored players
-			shouldBeWhiteListed = isPlayerInIgnoredList( playerName, shouldBeWhiteListed );
+//			shouldBeWhiteListed = isPlayerInIgnoredList( playerName );
 
 			// Removes players from the white-list.
 			if ( ! shouldBeWhiteListed ) {
@@ -171,16 +175,16 @@ public class WhitelistManager extends JavaPlugin {
 		}
 	}
 
-	public boolean isPlayerInIgnoredList( String playerToCheck, boolean shouldBeWhiteListed ) {
+	public boolean isPlayerInIgnoredList( String playerToCheck ) {
 		List<String> ignoredPlayers = getConfig().getStringList( "ignoreRemove" );
 
 		for ( String ignoredPlayer : ignoredPlayers ) {
-			if ( ignoredPlayer.equals( playerToCheck ) ) {
+			if ( ignoredPlayer.equalsIgnoreCase( playerToCheck ) ) {
 				return true;
 			}
 		}
 
-		return shouldBeWhiteListed;
+		return false;
 	}
 
 	/**
