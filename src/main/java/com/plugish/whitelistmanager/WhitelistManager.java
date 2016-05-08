@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.awt.*;
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -156,6 +156,9 @@ public class WhitelistManager extends JavaPlugin {
 				}
 			}
 
+			// Check the ignored players
+			shouldBeWhiteListed = isPlayerInIgnoredList( playerName, shouldBeWhiteListed );
+
 			// Removes players from the white-list.
 			if ( ! shouldBeWhiteListed ) {
 				serverPlayer.setWhitelisted( false );
@@ -166,6 +169,18 @@ public class WhitelistManager extends JavaPlugin {
 				}
 			}
 		}
+	}
+
+	public boolean isPlayerInIgnoredList( String playerToCheck, boolean shouldBeWhiteListed ) {
+		List<String> ignoredPlayers = getConfig().getStringList( "ignoreRemove" );
+
+		for ( String ignoredPlayer : ignoredPlayers ) {
+			if ( ignoredPlayer.equals( playerToCheck ) ) {
+				return true;
+			}
+		}
+
+		return shouldBeWhiteListed;
 	}
 
 	/**

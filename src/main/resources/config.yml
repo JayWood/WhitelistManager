@@ -12,4 +12,13 @@ update_interval: 1800
 url: "http://playground.jays.link"
 
 # Server security key
-key: {}
+key: ""
+
+##########################
+#   Ignore usernames
+# Typically you WANT your
+# username here if you're
+# the admin.
+##########################
+ignoreRemove:
+  - phyrax
