@@ -65,6 +65,7 @@ public class WhitelistManager extends JavaPlugin {
 		try {
 			uriBuilder = new URIBuilder( url );
 			uriBuilder.addParameter( "key", key );
+			uriBuilder.addParameter( "mc-whitelist-feed", "1" );
 		} catch ( Exception e ) {
 			getLogger().severe( e.getMessage() );
 		}
