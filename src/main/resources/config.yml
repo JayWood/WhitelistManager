@@ -7,3 +7,9 @@ lang: en
 
 # How often to check for whitelist updates
 update_interval: 1800
+
+# URL to WordPress installation
+url: "http://playground.jays.link"
+
+# Server security key
+key: {}
