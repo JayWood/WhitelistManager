@@ -4,6 +4,7 @@ import com.plugish.whitelistmanager.Lang.LangSetup;
 import com.plugish.whitelistmanager.Tasks.Sync;
 import org.apache.http.client.utils.URIBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -81,7 +82,11 @@ public class WhitelistManager extends JavaPlugin {
 		}
 
 		String webWhiteList = getPageContent( url );
-		Set<OfflinePlayer> serverPlayers = this.getServer().getWhitelistedPlayers();
+
+		// Reload the whitelist before checking
+		Bukkit.getServer().reloadWhitelist();
+
+		Set<OfflinePlayer> serverPlayers = Bukkit.getServer().getWhitelistedPlayers();
 		if ( serverPlayers.isEmpty() || webWhiteList.equals( "" ) ) {
 			return false;
 		}
@@ -94,6 +99,8 @@ public class WhitelistManager extends JavaPlugin {
 		JSONArray webPlayers = jsonObject.getJSONArray( "data" );
 		removePlayers( serverPlayers, webPlayers );
 		addPlayers( serverPlayers, webPlayers );
+
+		getLogger().info( "Whitelist Sync'd" );
 
 		return true;
 	}
@@ -117,7 +124,7 @@ public class WhitelistManager extends JavaPlugin {
 
 			if ( ! foundInList ) {
 				Bukkit.getServer().dispatchCommand( Bukkit.getConsoleSender(), "whitelist add " + webPlayer );
-				Bukkit.getServer().broadcastMessage( Color.CYAN + webPlayer + " has been added to the whitelist." );
+				Bukkit.getServer().broadcastMessage( ChatColor.GREEN + webPlayer + " has been added to the whitelist." );
 			}
 		}
 	}
@@ -153,9 +160,9 @@ public class WhitelistManager extends JavaPlugin {
 			if ( ! shouldBeWhiteListed ) {
 				serverPlayer.setWhitelisted( false );
 				if ( ! playerName.equals( "" ) ) {
-					Bukkit.getServer().broadcastMessage( Color.CYAN + playerName + " was removed from the server." );
+					Bukkit.getServer().broadcastMessage( ChatColor.AQUA + playerName + " was removed from the server." );
 				} else {
-					Bukkit.getServer().broadcastMessage( Color.ORANGE + "A player has been removed from the white-list." );
+					Bukkit.getServer().broadcastMessage( ChatColor.DARK_PURPLE + "A player has been removed from the white-list." );
 				}
 			}
 		}
@@ -184,6 +191,8 @@ public class WhitelistManager extends JavaPlugin {
 
 		try {
 			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestProperty( "User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11" );
+			connection.setUseCaches( false );
 		} catch ( IOException e ) {
 			getLogger().severe( e.getMessage() );
 		}
