@@ -4,12 +4,15 @@ import com.plugish.whitelistmanager.Events.loginListener;
 import com.plugish.whitelistmanager.Lang.LangSetup;
 import com.plugish.whitelistmanager.Tasks.Sync;
 import org.apache.http.client.utils.URIBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,24 +93,74 @@ public class WhitelistManager extends JavaPlugin {
 		}
 
 		JSONArray webPlayers = jsonObject.getJSONArray( "data" );
-		for ( OfflinePlayer player : serverPlayers ) {
-			String playerName = player.getName();
+		removePlayers( serverPlayers, webPlayers );
+		addPlayers( serverPlayers, webPlayers );
+
+		return true;
+	}
+
+	/**
+	 * Adds missing players to the white-list.
+	 *
+	 * @param serverPlayers Server-side white-listed players
+	 * @param webPlayers Web-based white-listed players
+	 */
+	public void addPlayers( Set<OfflinePlayer> serverPlayers, JSONArray webPlayers ) {
+		for ( int i = 0; i < webPlayers.length(); ++i ) {
+			String webPlayer = webPlayers.getString( i );
+			boolean foundInList = false;
+			for ( OfflinePlayer player : serverPlayers ) {
+				if ( player.getName().equals( webPlayer ) ) {
+					// This player exists.
+					foundInList = true;
+				}
+			}
+
+			if ( ! foundInList ) {
+				Bukkit.getServer().dispatchCommand( Bukkit.getConsoleSender(), "whitelist add " + webPlayer );
+				Bukkit.getServer().broadcastMessage( Color.CYAN + webPlayer + " has been added to the whitelist." );
+			}
+			
+		}
+	}
+
+	/**
+	 * Removes players not on the web-based whitelist.
+	 *
+	 * @param serverPlayers Server-side white-listed players
+	 * @param webPlayers Web-based white-listed players
+	 */
+	public void removePlayers( Set<OfflinePlayer> serverPlayers, JSONArray webPlayers ) {
+		for ( OfflinePlayer serverPlayer : serverPlayers ) {
+
+			// Get the player's name
+			String playerName = serverPlayer.getName();
+
+			// Default whitelist to false
 			boolean shouldBeWhiteListed = false;
+
+			// Loop through web-based player list
 			for ( int i = 0; i < webPlayers.length(); ++i ) {
+
+				// Get the current player name in the loop.
 				String curWebPlayer = webPlayers.getString( i );
+
+				// If they're on the web-based player list, AND we've seen them, skip 'em
 				if ( curWebPlayer.equals( playerName ) ) {
 					shouldBeWhiteListed = true;
 				}
 			}
 
-			if ( shouldBeWhiteListed ) {
-				player.setWhitelisted( false );
-
-				getServer().broadcastMessage( "Removed " + playerName + " from the whitelist." );
+			// Removes players from the white-list.
+			if ( ! shouldBeWhiteListed ) {
+				serverPlayer.setWhitelisted( false );
+				if ( ! playerName.equals( "" ) ) {
+					Bukkit.getServer().broadcastMessage( Color.CYAN + playerName + " was removed from the server." );
+				} else {
+					Bukkit.getServer().broadcastMessage( Color.ORANGE + "A player has been removed from the white-list." );
+				}
 			}
 		}
-
-		return true;
 	}
 
 	/**
