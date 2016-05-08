@@ -9,7 +9,10 @@ This plugin is intended to manage a JSON feed of white-listed users and will wor
  
 This plugin will sync regularly ( or on an interval you specify ) with the WordPress server to update it's local white-list.
 
-## Still in development
+## Changelog
 
-This plugin is just a side-project and in no way should be considered complete. Therefore, compile and use at your own
-risk, and therefore, tickets/issues will be ignored.
+### 1.1
+* Add an ignore player list to config.yml
+
+### 1.0
+* Initial Release, working prototype.
