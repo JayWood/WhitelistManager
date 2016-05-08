@@ -116,7 +116,8 @@ public class WhitelistManager extends JavaPlugin {
 			String webPlayer = webPlayers.getString( i );
 			boolean foundInList = false;
 			for ( OfflinePlayer player : serverPlayers ) {
-				if ( player.getName().equals( webPlayer ) ) {
+				String offlinePlayerName = player.getName();
+				if ( offlinePlayerName.equals( webPlayer ) || offlinePlayerName.isEmpty() ) {
 					// This player exists.
 					foundInList = true;
 				}
