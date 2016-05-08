@@ -1,6 +1,5 @@
 package com.plugish.whitelistmanager;
 
-import com.plugish.whitelistmanager.Events.loginListener;
 import com.plugish.whitelistmanager.Lang.LangSetup;
 import com.plugish.whitelistmanager.Tasks.Sync;
 import org.apache.http.client.utils.URIBuilder;
@@ -8,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -120,7 +118,6 @@ public class WhitelistManager extends JavaPlugin {
 				Bukkit.getServer().dispatchCommand( Bukkit.getConsoleSender(), "whitelist add " + webPlayer );
 				Bukkit.getServer().broadcastMessage( Color.CYAN + webPlayer + " has been added to the whitelist." );
 			}
-			
 		}
 	}
 
