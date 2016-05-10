@@ -156,7 +156,7 @@ public class WhitelistManager extends JavaPlugin {
 				String curWebPlayer = webPlayers.getString( i );
 
 				// If they're on the web-based player list, AND we've seen them, skip 'em
-				if ( curWebPlayer.equals( playerName ) ) {
+				if ( curWebPlayer.equals( playerName ) || playerName.isEmpty() ) {
 					shouldBeWhiteListed = true;
 				}
 			}
