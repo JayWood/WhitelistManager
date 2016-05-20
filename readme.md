@@ -13,6 +13,7 @@ This plugin will sync regularly ( or on an interval you specify ) with the WordP
 
 ### 1.1
 * Add an ignore player list to config.yml
+* Made Player check case-insensitive
 
 ### 1.0
 * Initial Release, working prototype.
