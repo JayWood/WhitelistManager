@@ -117,7 +117,7 @@ public class WhitelistManager extends JavaPlugin {
 			boolean foundInList = false;
 			for ( OfflinePlayer player : serverPlayers ) {
 				String offlinePlayerName = player.getName();
-				if ( offlinePlayerName.equals( webPlayer ) || offlinePlayerName.isEmpty() ) {
+				if ( offlinePlayerName.equalsIgnoreCase( webPlayer ) || offlinePlayerName.isEmpty() ) {
 					// This player exists.
 					foundInList = true;
 				}
@@ -156,7 +156,7 @@ public class WhitelistManager extends JavaPlugin {
 				String curWebPlayer = webPlayers.getString( i );
 
 				// If they're on the web-based player list, AND we've seen them, skip 'em
-				if ( curWebPlayer.equals( playerName ) || playerName.isEmpty() ) {
+				if ( curWebPlayer.equalsIgnoreCase( playerName ) || playerName.isEmpty() ) {
 					shouldBeWhiteListed = true;
 				}
 			}
